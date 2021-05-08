@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     Intent CropIntent;
     DisplayMetrics displayMetrics;
     int width, heigth;
+    private int test  = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
