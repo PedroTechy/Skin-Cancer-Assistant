@@ -62,7 +62,6 @@ public class MainActivity extends AppCompatActivity {
     DisplayMetrics displayMetrics;
     int width, heigth;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
