@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.skinapp">
 
-    <uses-feature android:name="android.hardware.camera"
-        android:required="false"  />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
 
 
 
@@ -29,13 +29,16 @@
         <activity
             android:configChanges="orientation" android:screenOrientation="portrait"
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"/>
+
         <provider
+
             android:authorities="com.example.skinapp.fileprovider"
             android:name="androidx.core.content.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
+
         </provider>
     </application>
 

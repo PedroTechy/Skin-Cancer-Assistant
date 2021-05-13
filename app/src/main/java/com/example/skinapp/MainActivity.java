@@ -46,12 +46,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static android.provider.MediaStore.Images.Media.getBitmap;
 
 public class MainActivity extends AppCompatActivity {
 
     private static  final int GALLERY_REQUEST_CODE = 123;
+    private static final int REQUEST_TAKE_PHOTO = 1;
     private ImageView imageView;
     private Button select, predict, takephoto;
     private TextView textView;
@@ -62,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     DisplayMetrics displayMetrics;
     int width, heigth;
     private int test  = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,30 +89,13 @@ public class MainActivity extends AppCompatActivity {
         takephoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String fileName = "SkinLesion";
-                File storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                try {
-                    File imageFile = File.createTempFile(fileName, ".jpg", storageDirectory);
-                    currentPhotoPath = imageFile.getAbsolutePath();
-                    Uri imageUri = FileProvider.getUriForFile(MainActivity.this, "com.example.skinapp.fileprovider", imageFile);
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    startActivityForResult(intent, 100);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                dispatchTakePictureIntent();
             }
         });
-
 
         select.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                /*GalIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(Intent.createChooser(GalIntent,"Select Image from Gallery"),2);*/
-                //intent.setAction(Intent.ACTION_GET_CONTENT);
 
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 intent.setType("image/*");
@@ -123,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                img = Bitmap.createScaledBitmap(img,  224,224,true); //para converter imagem para o tamanho certo
-
+                img = Bitmap.createScaledBitmap(img,  224,224,true); //para converter imagem para o tamanho certo, idealmente nao precisa resize
+                //modelo
                 try {
                     Skin1model model = Skin1model.newInstance(getApplicationContext());
 
@@ -170,70 +157,80 @@ public class MainActivity extends AppCompatActivity {
         //Importar imagem da galeria
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             uri = data.getData();
-           /* try {
-                img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-            CropImage();
+            CropImage.activity(uri)
+                    .start(this);
             //imageView.setImageURI(uri);
-
         }
 
         //tirar foto diretamente
-        if (requestCode == 100) {
+        if (requestCode == REQUEST_TAKE_PHOTO) {
             Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
-            //imageView.setImageBitmap(bitmap);
-            //Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            //ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-            //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-            String path = MediaStore.Images.Media.insertImage(getApplicationContext().getContentResolver(), bitmap, "val", null);
-
-            uri = Uri.parse(path);
-            //imageView.setImageURI(uri);
-            /*try {
-                img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }*/
-
-            CropImage();
-            //usar bitmap, direto, daria na mesma, pelo menos numa primeira parte;
+            Uri ImageUri = Uri.fromFile(new File(currentPhotoPath));
+            //imageView.setImageURI(ImageUri);
+            CropImage.activity(ImageUri)
+                    .start(this);
         }
 
-        else if(requestCode == 1){
-            if(data != null){
-                Bundle b = data.getExtras();
-                bitmap = b.getParcelable("data");
-                img = bitmap;
-                imageView.setImageBitmap(bitmap);
-                // save();
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+                imageView.setImageURI(resultUri);
+
+                //conveter o crop em bitmap para ser lido pelo modelo
+                //IMPORTANTE
+                try {
+                    img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
             }
         }
-
-
     }
 
-    private void CropImage(){
-        try{
 
-            CropIntent = new Intent("com.android.camera.action.CROP");
-            CropIntent.setDataAndType(uri, "image/*");
-            CropIntent.putExtra("crop", true);
-            CropIntent.putExtra("outputX", 224);
-            CropIntent.putExtra("outputY", 224);
-            CropIntent.putExtra("aspectX", 1);
-            CropIntent.putExtra("aspectY", 1);
-            CropIntent.putExtra("scaleUpIfNeeded", false);
-            CropIntent.putExtra("scale", false);
-            CropIntent.putExtra("return-data", true);
-            startActivityForResult(CropIntent, 1);
-
-
-        }catch (ActivityNotFoundException e){
-            Toast.makeText(this, "No activity found to resolve this intent", Toast.LENGTH_SHORT).show();
+    //Camera intent
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                //por um toast
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(this,
+                        "com.example.skinapp.fileprovider",
+                        photoFile);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+            }
         }
     }
 
+    //Creat File intent, sem isto nao consegui ir buscar os URI e a qualidade baixava mt
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+    
 }
 
