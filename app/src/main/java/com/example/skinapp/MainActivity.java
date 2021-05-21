@@ -1,55 +1,38 @@
 package com.example.skinapp;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.DisplayMetrics;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.skinapp.ml.Skin1model;
 import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.tensorflow.lite.DataType;
-import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.support.image.TensorImage;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static android.provider.MediaStore.Images.Media.getBitmap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -158,7 +141,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
             uri = data.getData();
             CropImage.activity(uri)
+                    .setAspectRatio(1,1)
+                    .setMinCropResultSize(224,224)
                     .start(this);
+            //.setMaxCropResultSize(224,224)
             //imageView.setImageURI(uri);
         }
 
@@ -168,7 +154,11 @@ public class MainActivity extends AppCompatActivity {
             Uri ImageUri = Uri.fromFile(new File(currentPhotoPath));
             //imageView.setImageURI(ImageUri);
             CropImage.activity(ImageUri)
+                    .setAspectRatio(1,1)
+                    .setMinCropResultSize(224,224)
                     .start(this);
+
+            //.setMaxCropResultSize(224,224)
         }
 
         if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
