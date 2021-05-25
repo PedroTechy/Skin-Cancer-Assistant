@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -34,18 +33,17 @@ import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 public class MainActivity extends AppCompatActivity {
 
     private static  final int GALLERY_REQUEST_CODE = 123;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private ImageView imageView;
-    private Button select, predict, takephoto;
+    private Button select, predict, takephoto, info;
     private TextView textView;
-    private Bitmap img,bitmap;
+    private Bitmap img;
     private Uri uri;
     private  String currentPhotoPath;
-    Intent CropIntent;
-    DisplayMetrics displayMetrics;
     int width, heigth;
     private int test  = 2;
 
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        info = findViewById(R.id.info);
         imageView = findViewById(R.id.ImageView1);
         select = findViewById(R.id.select);
         textView = findViewById(R.id.TextView1);
@@ -67,6 +65,14 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.CAMERA }, 100);
         }
 
+
+        info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent activity2Intent = new Intent(getApplicationContext(), Activity2.class);
+                startActivity(activity2Intent);
+            }
+        });
 
 
         takephoto.setOnClickListener(new View.OnClickListener() {
@@ -123,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                 } catch (IOException e) {
-                    textView.setText("You need to select or take a photo before predicting ");
+                    e.printStackTrace();
                 }
 
             }
@@ -181,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //Camera intent
+    //Camera intent com FileIntent incluido
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
@@ -205,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //Creat File intent, sem isto nao consegui ir buscar os URI e a qualidade baixava mt
+    //Creat File intent, sem isto nao conseguia ir buscar os URI e a qualidade baixava mt
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());

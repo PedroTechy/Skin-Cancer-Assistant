@@ -24,6 +24,7 @@
         android:text="Pick an image"
         android:theme="@style/Button.Typep1"
         android:layout_marginLeft="52dp"
+
         />
 
     <Button
@@ -57,7 +58,16 @@
         android:textAllCaps="true"
         android:textSize="20dp"
         android:background="@color/cardview_light_background"
-        android:layout_marginBottom="30dp"  />
+        android:layout_marginBottom="30dp" />
+
+    <Button
+        android:id="@+id/info"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@id/TextView1"
+        android:layout_marginStart="340dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_info" />
 
 
 </RelativeLayout>
