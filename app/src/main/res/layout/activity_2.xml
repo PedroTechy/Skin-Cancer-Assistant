@@ -4,44 +4,58 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/backgradient"
     tools:context=".Activity2">
+
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="56dp"
-        android:layout_marginEnd="56dp"
-        android:layout_marginBottom="63dp"
-        android:src="@drawable/sample"
+        android:layout_width="327dp"
+        android:layout_height="297dp"
+        android:layout_marginBottom="36dp"
+        android:elevation="30dp"
+        android:src="@drawable/sample2"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView2"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="311dp"
-        android:layout_height="34dp"
-        android:layout_marginStart="49dp"
-        android:layout_marginEnd="49dp"
-        android:layout_marginBottom="389dp"
-        android:text="First do this"
+        android:layout_width="332dp"
+        android:layout_height="295dp"
+        android:layout_marginBottom="84dp"
+        android:elevation="10dp"
+        android:fontFamily="sans-serif"
+        android:padding="20dp"
+        android:text="* Turn off the flash \n* Try to take pictures with natural light \n* Do more then one test and compare the results \n* Grant that the image is focus \n* Zoom in the lesion \n*Avoid black backgrounds"
+        android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        android:textSize="23dp"
+        android:background="@drawable/take_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+        app:layout_constraintHorizontal_bias="0.494"
+
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="33dp"
-        android:layout_marginTop="35dp"
-        android:layout_marginBottom="26dp"
-        android:text="How to take the photo"
+        android:layout_width="373dp"
+        android:textColor="@color/white"
+        android:layout_height="81dp"
+        android:text="Hints to get a more accurate result"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-condensed"
+        android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.598" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

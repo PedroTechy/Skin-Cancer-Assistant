@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:background="@drawable/backgradient"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,67 +8,98 @@
     tools:context=".MainActivity">
 
     <ImageView
+        android:background="@android:color/transparent"
         android:id="@+id/ImageView1"
         android:layout_width="377dp"
         android:layout_height="372dp"
         android:layout_centerInParent="true"
-        android:background="@color/white"
+
         android:scaleType="fitXY"
-        android:src="@drawable/image_icon" />
+        android:src="@drawable/image_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.453" />
 
     <Button
         android:id="@+id/select"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
+        android:layout_width="124dp"
+        android:layout_height="57dp"
         android:layout_below="@id/ImageView1"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="60dp"
+        android:background="@drawable/take_shape"
         android:text="Pick an image"
-        android:theme="@style/Button.Typep1"
-        android:layout_marginLeft="52dp"
+        android:elevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ImageView1"
+        app:layout_constraintVertical_bias="0.26
+" />
 
-        />
 
     <Button
-        android:layout_width="120dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/ImageView1"
-        android:text="Take photo"
         android:id="@+id/takephoto"
-        android:layout_marginLeft="240dp"
-        />
-
-    <Button
-        android:layout_width="200dp"
-        android:layout_height="60dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_below="@id/takephoto"
-        android:text="Get prediction"
-        android:id="@+id/predict"
-        android:layout_marginBottom="20dp" />
+        android:layout_width="124dp"
+        android:layout_height="57dp"
+        android:layout_below="@id/ImageView1"
+        android:layout_marginEnd="60dp"
+        android:background="@drawable/button_shape"
+        android:elevation="10dp"
+        android:text="Take photo"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ImageView1"
+        app:layout_constraintVertical_bias="0.26" />
 
     <TextView
-        android:layout_width="200dp"
         android:id="@+id/TextView1"
-        android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
+        android:background="@android:color/transparent"
+        android:layout_width="294dp"
+        android:layout_height="41dp"
         android:layout_above="@id/ImageView1"
+        android:layout_centerHorizontal="true"
         android:text="Your Result"
         android:textAlignment="center"
         android:textAllCaps="true"
         android:textSize="20dp"
-        android:background="@color/cardview_light_background"
-        android:layout_marginBottom="30dp" />
+        app:layout_constraintBottom_toTopOf="@+id/ImageView1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.714" />
 
-    <Button
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="292dp"
+        android:layout_height="37dp"
+        android:layout_above="@id/ImageView1"
+        android:layout_centerHorizontal="true"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textSize="20dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/ImageView1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.92" />
+
+    <ImageButton
         android:id="@+id/info"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="76dp"
+        android:layout_height="60dp"
         android:layout_above="@id/TextView1"
-        android:layout_marginStart="340dp"
-        android:layout_marginBottom="20dp"
-        android:src="@drawable/ic_info" />
+        android:background="@drawable/button_shape"
+        android:elevation="10dp"
+        android:src="@drawable/ic_info"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.51"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ImageView1"
+        app:layout_constraintVertical_bias="0.778" />
 
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,8 +9,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,11 +22,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.example.skinapp.ml.Skin1model;
+import com.example.skinapp.ml.ModelMobile2;
 import com.theartofdev.edmodo.cropper.CropImage;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.support.common.ops.NormalizeOp;
+import org.tensorflow.lite.support.image.ImageProcessor;
 import org.tensorflow.lite.support.image.TensorImage;
+import org.tensorflow.lite.support.image.ops.ResizeOp;
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
 
 import java.io.File;
@@ -39,12 +45,12 @@ public class MainActivity extends AppCompatActivity {
     private static  final int GALLERY_REQUEST_CODE = 123;
     private static final int REQUEST_TAKE_PHOTO = 1;
     private ImageView imageView;
-    private Button select, predict, takephoto, info;
-    private TextView textView;
+    private Button select, takephoto;
+    private ImageButton info;
+    private TextView textView, textView2;
     private Bitmap img;
     private Uri uri;
     private  String currentPhotoPath;
-    int width, heigth;
     private int test  = 2;
 
 
@@ -57,8 +63,10 @@ public class MainActivity extends AppCompatActivity {
         imageView = findViewById(R.id.ImageView1);
         select = findViewById(R.id.select);
         textView = findViewById(R.id.TextView1);
-        predict = findViewById(R.id.predict);
         takephoto = findViewById(R.id.takephoto);
+        textView2 = findViewById(R.id.textView2);
+
+
 
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
@@ -94,48 +102,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        predict.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                img = Bitmap.createScaledBitmap(img,  224,224,true); //para converter imagem para o tamanho certo, idealmente nao precisa resize
-                //modelo
-                try {
-                    Skin1model model = Skin1model.newInstance(getApplicationContext());
-
-                    // Creates inputs for reference.
-                    TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
-
-                    TensorImage tensorImage  = new TensorImage(DataType.FLOAT32);
-                    tensorImage.load(img);
-                    ByteBuffer byteBuffer = tensorImage.getBuffer();
-
-                    inputFeature0.loadBuffer(byteBuffer);
-
-                    // Runs model inference and gets result.
-                    Skin1model.Outputs outputs = model.process(inputFeature0);
-                    TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
-
-                    // Releases model resources if no longer used.
-                    model.close();
-                    //textView.setText(outputFeature0.getFloatArray()[0] + "\n" + outputFeature0.getFloatArray()[1]);
-                    int benValue = Math.round(outputFeature0.getFloatArray()[0] );
-                    if(benValue == 1){
-                        textView.setText("Low risk");
-                    }
-                    else {
-                        textView.setText("High Risk");
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        });
-
-
     }
 
 
@@ -158,7 +124,9 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_TAKE_PHOTO) {
             Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
             Uri ImageUri = Uri.fromFile(new File(currentPhotoPath));
+
             //imageView.setImageURI(ImageUri);
+
             CropImage.activity(ImageUri)
                     .setAspectRatio(1,1)
                     .setMinCropResultSize(224,224)
@@ -173,10 +141,12 @@ public class MainActivity extends AppCompatActivity {
                 Uri resultUri = result.getUri();
                 imageView.setImageURI(resultUri);
 
-                //conveter o crop em bitmap para ser lido pelo modelo
+                 //conveter o crop em bitmap para ser lido pelo modelo
                 //IMPORTANTE
+
                 try {
                     img = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    makeInference(img);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -186,6 +156,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //textView.setText("Diagnosis: Benign");
+    //  textView2.setText("Confidence: " + (outputFeature0[0])*100+"%");
+
+    private void makeInference(Bitmap img) {
+
+        @NonNull float[] outputFeature0 = Model(img);
+
+        //textView.setText(outputFeature0.getFloatArray()[0] + "\n" + outputFeature0.getFloatArray()[1]);
+        int benValue = Math.round(outputFeature0[0] );
+        if(benValue == 1){
+            textView.setText("Diagnosis: Benign");
+            textView2.setText("Confidence: " + (outputFeature0[0])*100+"%");
+
+        }
+        else {
+            textView.setText("Diagnosis: Malignant");
+            textView2.setText("Confidence: " + (outputFeature0[1])*100+"%");
+
+        }
+
+    }
 
     //Camera intent com FileIntent incluido
     private void dispatchTakePictureIntent() {
@@ -227,6 +218,76 @@ public class MainActivity extends AppCompatActivity {
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
-    
+
+    protected @NonNull float[] Model(Bitmap img) {
+
+        /*ModelEficient model = null;
+        try {
+            model = ModelEficient.newInstance(getApplicationContext());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+
+        /*Skin1model model = null;
+        try {
+            model = Skin1model.newInstance(getApplicationContext());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+
+        ModelMobile2 model = null;
+        try {
+            model = ModelMobile2.newInstance(getApplicationContext());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        // Initialization code
+        // Create an ImageProcessor with all ops required. For more ops, please
+        // refer to the ImageProcessor Architecture section in this README.
+        ImageProcessor imageProcessor =
+                new ImageProcessor.Builder()
+                        .add(new ResizeOp(224, 224, ResizeOp.ResizeMethod.BILINEAR))
+                        .add(new NormalizeOp(0f, 255.0f)) //this makes all the diference
+                        .build();
+
+        // Creates inputs for reference.
+        TensorBuffer inputFeature0 = TensorBuffer.createFixedSize(new int[]{1, 224, 224, 3}, DataType.FLOAT32);
+
+        TensorImage tensorImage = new TensorImage(DataType.FLOAT32);
+        tensorImage.load(img);
+        tensorImage = imageProcessor.process(tensorImage);
+        ByteBuffer byteBuffer = tensorImage.getBuffer();
+
+        inputFeature0.loadBuffer(byteBuffer);
+
+        // Runs model inference and gets result.
+        //Skin1model.Outputs outputs = model.process(inputFeature0);
+        //ModelEficient.Outputs outputs = model.process(inputFeature0);
+        ModelMobile2.Outputs outputs = model.process(inputFeature0);
+        TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+
+        Log.d("Saídas do modelo", String.valueOf(outputFeature0.getFloatArray()[0]));
+        Log.d("Saídas do modelo", String.valueOf(outputFeature0.getFloatArray()[1]));
+
+        // Releases model resources if no longer used.
+        model.close();
+        //textView.setText(outputFeature0.getFloatArray()[0] + "\n" + outputFeature0.getFloatArray()[1]);
+
+
+
+        return outputFeature0.getFloatArray();
+
+    }
+
+
+
+
+
+
 }
 
