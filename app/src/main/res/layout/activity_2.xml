@@ -10,22 +10,22 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="327dp"
-        android:layout_height="297dp"
-        android:layout_marginBottom="36dp"
+        android:layout_width="296dp"
+        android:layout_height="261dp"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/sample2"
         android:elevation="30dp"
-        android:src="@drawable/sample2"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:srcCompat="@tools:sample/avatars" />
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="332dp"
         android:layout_height="295dp"
-        android:layout_marginBottom="84dp"
+        android:layout_marginBottom="88dp"
+        android:background="@drawable/take_shape"
         android:elevation="10dp"
         android:fontFamily="sans-serif"
         android:padding="20dp"
@@ -33,10 +33,9 @@
         android:textAlignment="viewStart"
         android:textColor="@color/white"
         android:textSize="23dp"
-        android:background="@drawable/take_shape"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintHorizontal_bias="0.493"
 
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -46,7 +45,7 @@
         android:textColor="@color/white"
         android:layout_height="81dp"
         android:text="Hints to get a more accurate result"
-        android:textSize="30dp"
+        android:textSize="35dp"
         android:textStyle="bold"
         android:fontFamily="sans-serif-condensed"
         android:textAlignment="center"

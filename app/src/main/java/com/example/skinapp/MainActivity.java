@@ -40,6 +40,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
+//android:startColor="@color/purple_700"
+//        android:centerColor="@color/ColoPrimary"
+//        android:endColor="@color/teal_200"
+
+
 public class MainActivity extends AppCompatActivity {
 
     private static  final int GALLERY_REQUEST_CODE = 123;
@@ -51,8 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap img;
     private Uri uri;
     private  String currentPhotoPath;
-    private int test  = 2;
-
+    private  String GALLERY_LOCATION = "SkinGallery";
+    private File mGalleryFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         takephoto = findViewById(R.id.takephoto);
         textView2 = findViewById(R.id.textView2);
 
-
+        creatSkinGallery();
 
         if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{
@@ -77,15 +82,21 @@ public class MainActivity extends AppCompatActivity {
         info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            
                 Intent activity2Intent = new Intent(getApplicationContext(), Activity2.class);
                 startActivity(activity2Intent);
+
             }
         });
 
 
         takephoto.setOnClickListener(new View.OnClickListener() {
             @Override
+
             public void onClick(View v) {
+
+                Log.d("fds", "antes do dispatch intent") ;
+
                 dispatchTakePictureIntent();
             }
         });
@@ -122,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
 
         //tirar foto diretamente
         if (requestCode == REQUEST_TAKE_PHOTO) {
+
             Bitmap bitmap = BitmapFactory.decodeFile(currentPhotoPath);
             Uri ImageUri = Uri.fromFile(new File(currentPhotoPath));
 
@@ -156,32 +168,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //textView.setText("Diagnosis: Benign");
-    //  textView2.setText("Confidence: " + (outputFeature0[0])*100+"%");
-
     private void makeInference(Bitmap img) {
 
         @NonNull float[] outputFeature0 = Model(img);
-
+        double scale = Math.pow(10, 2);
         //textView.setText(outputFeature0.getFloatArray()[0] + "\n" + outputFeature0.getFloatArray()[1]);
         int benValue = Math.round(outputFeature0[0] );
         if(benValue == 1){
-            textView.setText("Diagnosis: Benign");
-            textView2.setText("Confidence: " + (outputFeature0[0])*100+"%");
 
+            textView.setText("Diagnosis: Benign");
+            textView2.setText("Confidence: " + Math.round(outputFeature0[0]*100*scale)/scale + "%");
+
+            //textView2.setText("Confidence: " + (outputFeature0[0])*100+"%");
+            //Log.d("aqui", (outputFeature0[0]).getClass().getSimpleName());
         }
         else {
             textView.setText("Diagnosis: Malignant");
-            textView2.setText("Confidence: " + (outputFeature0[1])*100+"%");
+            textView2.setText("Confidence: " + Math.round(outputFeature0[1]*100*scale)/scale + "%");
 
         }
 
     }
 
     //Camera intent com FileIntent incluido
+
     private void dispatchTakePictureIntent() {
+
+        Log.d("fds", "inicio do dispatch") ;
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         // Ensure that there's a camera activity to handle the intent
+        Log.d("fds", "depois do action") ;
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
@@ -193,31 +209,63 @@ public class MainActivity extends AppCompatActivity {
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.skinapp.fileprovider",
-                        photoFile);
+
+                Log.d("fds", "nao é nulo");
+
+                Uri photoURI = FileProvider.getUriForFile(this, "com.example.skinapp.fileprovider",photoFile);
+
+                //Uri  photoURI = Uri.fromFile(photoFile);
+
+                Log.d("fds", "Uri from file" + photoURI) ;
+
+                //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,  Uri.fromFile(photoFile));
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-            }
+           }
         }
     }
 
     //Creat File intent, sem isto nao conseguia ir buscar os URI e a qualidade baixava mt
+
+    private void creatSkinGallery(){
+
+        File storageDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        mGalleryFolder = new File(storageDirectory, GALLERY_LOCATION);
+
+        if(!mGalleryFolder.exists()){
+            mGalleryFolder.mkdir();
+
+        }
+    }
+
+
     private File createImageFile() throws IOException {
         // Create an image file name
+
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
 
+        Log.d("fds", "entrou no creat file");
+
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+
+        String path = Environment.getExternalStorageDirectory().toString()+"/Pictures/skin gallery/";  //"/DCIM/BenignTeste or DCIM/naevus "
+        File directory = new File(path);
+
+        File direct = new File(Environment.getExternalStorageDirectory() + "/Pictures/Ski");
+        Log.d("fds", storageDir.getAbsolutePath());
+        Log.d("fds", direct.getAbsolutePath());
+        Log.d("fds", path);
+
+        File image = File.createTempFile(      imageFileName,  ".jpg", storageDir );
         // Save a file: path for use with ACTION_VIEW intents
         currentPhotoPath = image.getAbsolutePath();
+        Log.d("fds", currentPhotoPath);
         return image;
+
     }
+
+
 
     protected @NonNull float[] Model(Bitmap img) {
 
@@ -268,8 +316,15 @@ public class MainActivity extends AppCompatActivity {
         // Runs model inference and gets result.
         //Skin1model.Outputs outputs = model.process(inputFeature0);
         //ModelEficient.Outputs outputs = model.process(inputFeature0);
+
+        long startTime = System.nanoTime();
+
         ModelMobile2.Outputs outputs = model.process(inputFeature0);
+
+
+
         TensorBuffer outputFeature0 = outputs.getOutputFeature0AsTensorBuffer();
+
 
         Log.d("Saídas do modelo", String.valueOf(outputFeature0.getFloatArray()[0]));
         Log.d("Saídas do modelo", String.valueOf(outputFeature0.getFloatArray()[1]));
@@ -278,16 +333,11 @@ public class MainActivity extends AppCompatActivity {
         model.close();
         //textView.setText(outputFeature0.getFloatArray()[0] + "\n" + outputFeature0.getFloatArray()[1]);
 
-
+        long stopTime = System.nanoTime();
+        Log.d("tempo", String.valueOf(stopTime - startTime));
 
         return outputFeature0.getFloatArray();
 
     }
-
-
-
-
-
-
 }
 
